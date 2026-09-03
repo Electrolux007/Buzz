@@ -1,0 +1,53 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — BUZZ</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-layout">
+    <!-- Left Side: Form Card (Wider) -->
+    <main class="auth-card" aria-labelledby="page-title">
+      <header class="brand">
+        <h1 id="page-title">Welcome back</h1>
+        <p>Sign in to continue to BUZZ Labs.</p>
+      </header>
+
+      <form id="signin-form" class="auth-form">
+        <div class="form-field">
+          <label for="signin-email">Email address</label>
+          <input id="signin-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="form-field">
+          <label for="signin-password">Password</label>
+          <input id="signin-password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+        <div class="form-row">
+          <label class="checkbox-label" for="remember-me">
+            <input id="remember-me" name="remember-me" type="checkbox">
+            Remember me
+          </label>
+          <a id="forgot-password-link" href="#">Forgot password?</a>
+        </div>
+        <button id="signin-submit-button" class="submit-button" type="submit">Sign in</button>
+        <p class="auth-link">Need an account? <a href="signup.html">Sign up</a></p>
+      </form>
+    </main>
+
+    <!-- Right Side: Floating Tech Image Card -->
+    <div class="auth-image-panel">
+        <img src="https://plus.unsplash.com/premium_photo-1682148619041-d161e57060f7?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="High-end workstation setup">
+        <div class="auth-image-overlay"></div>
+        <div class="auth-image-content">
+            
+            <h2>POWER YOUR WORLD</h2>
+            <p>Log in to manage your curated gear, track shipments, and explore elite hardware releases.</p>
+        </div>
+    </div>
+  </div>
+</body>
+<script src="./script.js" defer></script>
+</html>

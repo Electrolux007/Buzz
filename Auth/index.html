@@ -1,0 +1,58 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — BUZZ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="auth-layout">
+        <!-- Left Side: Form Card (Wider) -->
+        <main class="auth-card" aria-labelledby="page-title">
+            <header class="brand">
+                <h1 id="page-title">Create an account</h1>
+                <p>Enter your details to join BUZZ Labs.</p>
+            </header>
+
+            <form id="signup-form" class="auth-form">
+                <div class="form-field">
+                    <label for="signup-name">Full name</label>
+                    <input id="signup-name" name="name" type="text" placeholder="Jane Doe" autocomplete="name" required>
+                </div>
+                <div class="form-field">
+                    <label for="signup-email">Email address</label>
+                    <input id="signup-email" name="email" type="email" placeholder="you@example.com" autocomplete="email"
+                        required>
+                </div>
+                <div class="form-field">
+                    <label for="signup-password">Password</label>
+                    <input id="signup-password" name="password" type="password" placeholder="Create a password"
+                        autocomplete="new-password" required>
+                </div>
+                <div class="form-field">
+                    <label for="signup-confirm-password">Confirm password</label>
+                    <input id="signup-confirm-password" name="confirm-password" type="password"
+                        placeholder="Repeat your password" autocomplete="new-password" required>
+                </div>
+                <button id="signup-submit-button" class="submit-button" type="submit">Create account</button>
+                <p class="auth-link">Already have an account? <a href="signin.html">Sign in</a></p>
+            </form>
+        </main>
+
+        <!-- Right Side: Floating Tech Image Card -->
+        <div class="auth-image-panel">
+            <img src="https://plus.unsplash.com/premium_photo-1682096290173-e75148d2f754?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="High-end gaming setup">
+            <div class="auth-image-overlay"></div>
+            <div class="auth-image-content">
+                <h2>ENGINEERED FOR EXCELLENCE</h2>
+                <p>Access elite hardware drops, track orders, and join the next generation of high-performance tech.</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="./script.js" defer></script>
+</html>
