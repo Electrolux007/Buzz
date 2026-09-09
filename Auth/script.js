@@ -1,99 +1,171 @@
-const savedCredentials = JSON.parse(localStorage.getItem("database")) || [];
+// 1. ALL IMPORTS MUST BE AT THE VERY TOP
+import { auth, db } from "../firebase-config.js";
+import {
+    createUserWithEmailAndPassword,
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-const createAccount = () =>{
-    let userName = document.getElementById("signup-name").value
-    let userEmail = document.getElementById("signup-email").value
-    let userPassword = document.getElementById("signup-password").value
-    let userPasswordConfirmed = document.getElementById("signup-confirm-password").value // Basic DOM that retrieves ids and assigns them to variables 
-
-
-// TRYING TO WRITE A FUNCTION THAT CHECKS FOR IF THE LOGIN CREDENTIALS IS ALREADY PRESENT
-    const checkDatabase = () =>{
-        for(let i=0; i<savedCredentials.length; i++){
-            if (userEmail === savedCredentials[i].userEmail && userName === savedCredentials[i].userName){
-                alert("Username or Email taken")
-                return true
-            } 
-        }
-        return false
-    }
-
-    //REMEBER THAT IN ORDER FOR THE OBJECTS TO RECIEVE THE VALUES FROM THE FORM THEY MUST BE PUT IN THE FUNCTION SO THEY CAN BE UPDATED
-    let credentials = {userName, userEmail, userPassword, userPasswordConfirmed} // This stores the variables in an object called Credentials
-    
-    if(userName.trim() === "" || userEmail.trim() === "" || userPassword.trim() ==="" || userPasswordConfirmed.trim() ===""){ // This is a conditional statment that checks each value if it is true and if one is true it returns true and runs the command which in this case is an alert
-        alert("Please fill in all the inputs") //                       Alert to fill input will change to innerhtml stuff later sha
-    } else { //                                  This is the else statment so it runs the normal command but i added a nested condtitional
-        if (userPassword.trim() === userPasswordConfirmed){                  // This is a nested conditional statment to check if the original password is the same as the confirmed password
-
-            
-            if (!checkDatabase(false)){
-                savedCredentials.push(credentials) // Pushes new Objects to the back of the array
-                localStorage.setItem("database", JSON.stringify(savedCredentials)) // This line saves the updated array as a string 
-                console.log(credentials);
-                // This is for a smooth animation and loading button
-                document.getElementById("signup-submit-button").innerHTML = `<span class="loader"></span> Creating account...`;
-                setTimeout(() => {
-                document.body.classList.add("page-exit");
-                }, 1100);
-                setTimeout(() => {
-                window.location.href = "signin.html";
-                }, 1500);
-            }
-            
-            
-        } else { // If they are not the same it alerts the user
-            alert("Confirm password is wrong")
-        }
-    }
-
-    document.getElementById("signup-name").value = ""
-    document.getElementById("signup-email").value = ""
-    document.getElementById("signup-password").value = ""
-    document.getElementById("signup-confirm-password").value = "" // These lines are to clear the inputs after the function is run
-} 
-
-
-let submit = document.getElementById("signup-submit-button")
-
-submit?.addEventListener("click", function(){
-    event.preventDefault()
-    createAccount()
-    
-})
-
-console.log(savedCredentials);
-
-let signInButton = document.getElementById("signin-submit-button")
-
-signInButton?.addEventListener("click",function(){
-    event.preventDefault()
-    verfifylogIn()
-})
-
-
-const verfifylogIn = () =>{
-    let userEmail = document.getElementById("signin-email").value
-    let userPassword = document.getElementById("signin-password").value    
-    let isValid = checkDatabaseLogin(userEmail, userPassword)
-    if (isValid) {     
-        document.getElementById("signin-submit-button").innerHTML = `<span class="loader"></span> Logging you in...`;
-                    setTimeout(() => {
-                    document.body.classList.add("page-exit");
-                    }, 1100);
-                    setTimeout(() => {
-                    window.location.href = "../index.html";
-                    }, 1500);
-
-    } 
+// --- Small helpers for button loading state ---
+function setButtonLoading(button, loadingText) {
+    if (!button) return;
+    button.dataset.originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = `<span class="loader"></span> ${loadingText}`;
 }
 
-const checkDatabaseLogin = (userEmail, userPassword) =>{
-        for(let i=0; i<savedCredentials.length; i++){
-            if (userEmail === savedCredentials[i].userEmail && userPassword === savedCredentials[i].userPassword){
-                alert("Login sucessful")
-                return true
-            }  
-        } alert ("Incorrect Email or Password") 
-        return false
+function resetButton(button) {
+    if (!button) return;
+    button.disabled = false;
+    if (button.dataset.originalText) {
+        button.innerHTML = button.dataset.originalText;
     }
+}
+
+// --- Email / Password Sign Up Logic ---
+const createAccount = async () => {
+    const userName = document.getElementById("signup-name")?.value.trim() ?? "";
+    const userEmail = document.getElementById("signup-email")?.value.trim() ?? "";
+    const userPassword = document.getElementById("signup-password")?.value ?? "";
+    const userPasswordConfirmed = document.getElementById("signup-confirm-password")?.value ?? "";
+    const submitButton = document.getElementById("signup-submit-button");
+
+    if (!userName || !userEmail || !userPassword || !userPasswordConfirmed) {
+        alert("Please fill in all the inputs");
+        return;
+    }
+
+    if (userPassword !== userPasswordConfirmed) {
+        alert("Confirm password does not match");
+        return;
+    }
+
+    setButtonLoading(submitButton, "Creating account...");
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, userEmail, userPassword);
+        const user = userCredential.user;
+
+        await updateProfile(user, { displayName: userName });
+
+        await setDoc(doc(db, "users", user.uid), {
+            uid: user.uid,
+            name: userName,
+            email: userEmail,
+            createdAt: new Date()
+        });
+
+        document.body.classList.add("page-exit");
+        setTimeout(() => {
+            window.location.href = "./signin.html";
+        }, 400);
+
+    } catch (error) {
+        console.error(error.code, error.message);
+        alert("Error creating account: " + error.message);
+        resetButton(submitButton);
+    }
+};
+
+// --- Email / Password Sign In Logic ---
+const loginAccount = async () => {
+    const userEmail = document.getElementById("signin-email")?.value.trim() ?? "";
+    const userPassword = document.getElementById("signin-password")?.value ?? "";
+    const submitButton = document.getElementById("signin-submit-button");
+
+    if (!userEmail || !userPassword) {
+        alert("Please fill in all the inputs");
+        return;
+    }
+
+    setButtonLoading(submitButton, "Signing in...");
+
+    try {
+        await signInWithEmailAndPassword(auth, userEmail, userPassword);
+        window.location.href = "../index.html";
+    } catch (error) {
+        console.error(error.code, error.message);
+        alert("Error signing in: " + error.message);
+        resetButton(submitButton);
+    }
+};
+
+// --- Wire up FORMS (not just buttons) ---
+// Listening on the form's "submit" event (rather than the button's "click")
+// catches Enter-key submits, autofill submits, etc. — not just mouse clicks.
+const signinForm = document.getElementById("signin-form");
+signinForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    loginAccount();
+});
+
+const signupForm = document.getElementById("signup-form");
+signupForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    createAccount();
+});
+
+// --- Google Sign-In Logic ---
+const provider = new GoogleAuthProvider();
+
+const signInWithGoogle = async () => {
+    const googleBtn = document.getElementById("google-signin-button");
+    setButtonLoading(googleBtn, "Connecting...");
+
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            await setDoc(userRef, {
+                uid: user.uid,
+                name: user.displayName,
+                email: user.email,
+                createdAt: new Date()
+            });
+        }
+
+        window.location.href = "../index.html";
+
+    } catch (error) {
+        console.error("Google Sign-In Error:", error.code, error.message);
+        if (error.code === "auth/popup-blocked") {
+            alert("Your browser blocked the sign-in popup. Please allow popups for this site and try again.");
+        } else if (error.code === "auth/popup-closed-by-user") {
+            // User closed it themselves — no alert needed
+        } else {
+            alert("Google sign-in failed: " + error.message);
+        }
+        resetButton(googleBtn);
+    }
+};
+
+const googleSignInButton = document.getElementById("google-signin-button");
+googleSignInButton?.addEventListener("click", (e) => {
+    e.preventDefault();
+    signInWithGoogle();
+});
+
+function updateCartBadge() {
+    const badge = document.getElementById("cart-badge");
+    if (!badge) return;
+
+    let cart = JSON.parse(localStorage.getItem("buzz_cart")) || [];
+    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+    if (totalItems > 0) {
+        badge.textContent = totalItems;
+        badge.style.display = "inline-block";
+    } else {
+        badge.style.display = "none";
+    }
+}
+
+// Run immediately when any page loads
+updateCartBadge();

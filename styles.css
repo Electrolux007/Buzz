@@ -294,8 +294,10 @@ em {
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 1px;
-    text-transform: uppercase;
+    text-transform: uppercase;;
 }
+
+
 
 .text-link span,
 .card-link span {
@@ -616,6 +618,31 @@ em {
     border-bottom: 1px solid var(--green);
     background: rgba(184, 255, 0, 0.05);
     box-shadow: 0 4px 15px rgba(184, 255, 0, 0.15);
+}
+
+.google-btn {
+  width: 100%; /* Matches the width of your Create Account button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05); /* Subtle glassmorphism */
+  color: #a1a1aa; /* Muted text so it doesn't clash with your neon button */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  margin-top: 15px; /* Spacing from the button above */
+}
+
+.google-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .newsletter button {

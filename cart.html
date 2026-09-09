@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080909">
+    <title>BUZZ — Shopping Cart</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #121315;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .cart-item-info img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <header class="site-header">
+        <a class="brand" href="index.html">BU<span>ZZ</span><i></i></a>
+
+        <nav aria-label="Primary navigation">
+            <a href="index.html">Home</a>
+            <a href="store.html">Store</a>
+            <a href="index.html#support">Support</a>
+            <a href="index.html#games">Games</a>
+        </nav>
+
+        <div class="auth-buttons">
+            <a href="./Auth/signin.html" class="btn-login">Log in</a>
+            <a href="./Auth/index.html" class="btn-signup">Sign Up</a>
+        </div>
+
+        <div class="nav-actions">
+    <a href="#search" aria-label="Search"><img src="./Assets/search_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" alt=""></a>
+    <a class="cart-link" href="cart.html" aria-label="Shopping cart" style="position: relative;">
+        <img src="./Assets/shopping_cart_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="">
+        <span id="cart-badge" style="position: absolute; top: -6px; right: -8px; background: #38bdf8; color: #000; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; display: none;">0</span>
+    </a>
+    <a href="#account" aria-label="Account"><img src="./Assets/account_box_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" alt=""></a>
+</div>
+    </header>
+
+    <main>
+        <section class="featured" style="padding-top: 80px; min-height: 70vh;">
+            <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+                <h1 style="color: #fff; margin-bottom: 24px; font-size: 2rem;">YOUR SHOPPING CART</h1>
+                
+                <div id="cart-items-container">
+                    <!-- Dynamic cart items load here -->
+                </div>
+
+                <div id="cart-summary" style="margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <span style="color: #9ca3af; font-size: 1.2rem;">Total:</span>
+                        <strong id="cart-total-price" style="color: #38bdf8; font-size: 1.8rem;">$0.00</strong>
+                    </div>
+                    <button id="checkout-btn" class="btn-signup" style="width: 100%; padding: 14px; text-align: center; cursor: pointer; border: none; font-size: 1rem;">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <a class="brand" href="index.html">BU<span>ZZ</span><i></i></a>
+        <p>© ELECTROLUX DEV TEAM KAWAII</p>
+
+        <div class="footer-links">
+            <a href="./Auth/signin.html">Sign in</a>
+            <a href="cart.html">Cart</a>
+            <a href="index.html#support">Help center</a>
+        </div>
+    </footer>
+
+    <!-- Cart Management Script -->
+    <script>
+        function loadCart() {
+            const container = document.getElementById("cart-items-container");
+            const summary = document.getElementById("cart-summary");
+            const totalPriceEl = document.getElementById("cart-total-price");
+
+            let cart = JSON.parse(localStorage.getItem("buzz_cart")) || [];
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="color: #9ca3af;">Your cart is empty. <a href="store.html" style="color: #fff; text-decoration: underline;">Browse store</a></p>`;
+                summary.style.display = "none";
+                return;
+            }
+
+            container.innerHTML = "";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+
+                const itemRow = document.createElement("div");
+                itemRow.className = "cart-item-row";
+                itemRow.innerHTML = `
+                    <div class="cart-item-info">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div>
+                            <h3 style="color: #fff; font-size: 1rem; margin-bottom: 4px;">${item.name}</h3>
+                            <p style="color: #9ca3af; font-size: 0.9rem;">$${item.price.toFixed(2)} × ${item.quantity}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeItem(${index})" style="background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;">Remove</button>
+                `;
+                container.appendChild(itemRow);
+            });
+
+            totalPriceEl.textContent = `$${total.toFixed(2)}`;
+            summary.style.display = "block";
+        }
+
+       window.removeItem = function(index) {
+    let cart = JSON.parse(localStorage.getItem("buzz_cart")) || [];
+    cart.splice(index, 1);
+    localStorage.setItem("buzz_cart", JSON.stringify(cart));
+    
+    loadCart();
+    if (typeof updateCartBadge === "function") {
+        updateCartBadge();
+    }
+};
+        document.getElementById("checkout-btn")?.addEventListener("click", () => {
+            alert("Checkout flow initiated! (Integration ready for Stripe/Firebase orders)");
+        });
+
+        loadCart();
+    </script>
+    <script src="cart-helper.js"></script>
+</body>
+
+</html>
